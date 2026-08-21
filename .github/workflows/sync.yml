@@ -1,0 +1,35 @@
+name: sync-models-dev
+
+on:
+  schedule:
+    - cron: '0 * * * *'   # 每小时整点
+  workflow_dispatch:      # 支持手动触发
+
+permissions:
+  contents: write         # GITHUB_TOKEN 自动授权，可推送回本仓库
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 拉取并过滤
+        run: |
+          curl -fsSL --retry 3 --connect-timeout 30 https://models.dev/api.json -o api-full.json
+          python3 scripts/filter.py api-full.json models-dev.json
+
+      - name: 校验 JSON 合法性
+        run: python3 -c "import json; json.load(open('models-dev.json', encoding='utf-8'))"
+
+      - name: 有变化才提交推送
+        run: |
+          if git diff --quiet -- models-dev.json; then
+            echo "数据无变化，跳过提交"
+          else
+            git config user.name "models-sync-bot"
+            git config user.email "models-sync-bot@users.noreply.github.com"
+            git add models-dev.json
+            git commit -m "chore: sync models.dev data $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            git push
+          fi
