@@ -6,7 +6,7 @@
 
 | 文件 | 说明 |
 |---|---|
-| `models-dev.json` | 精简版镜像（约 3.5MB）：全部 193 个服务商 + 全部 7230 个模型，剔除 `description`（纯文本描述）与服务商 `env/npm/doc`（SDK 集成信息） |
+| `models-dev.json` | 精简版镜像（约 3.5MB）：全部 193 个服务商 + 全部 7230 个模型，剔除冗余/无关字段（模型 `id`/`provider`/`attachment`/`experimental`/`interleaved`/`temperature`/`knowledge`/`open_weights` + 服务商 `env`/`npm`/`doc`），保留 DriFox 消费的 `description`/`cost`/`limit`/`modalities`/`reasoning` 等全部能力字段 |
 | `.github/workflows/sync.yml` | Actions 工作流：每小时拉取 → 过滤 → 有变化才提交 |
 | `scripts/filter.py` | 过滤脚本（本地可复用：`python3 scripts/filter.py api.json models-dev.json`） |
 
