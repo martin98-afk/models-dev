@@ -2,15 +2,23 @@
 # -*- coding: utf-8 -*-
 """从 models.dev/api.json 提取精简版：剔除与模型选择/使用无关的字段。
 
-剔除：
-- 模型: description（纯文本描述，占体积最大）
-- 服务商: env/npm/doc（SDK 集成信息，DriFox 配置模型用不到）
-保留：模型能力/价格/限制/状态等全部字段 + 服务商 id/name/api。
+剔除原则（以 DriFox 实际消费为准，见 app/core/models_dev_sync.py）：
+- 模型 id：与 models 字典 key 重复（冗余）
+- 模型 provider：与所属服务商重复（冗余）
+- 模型 attachment/experimental/interleaved/temperature/knowledge/open_weights：
+  DriFox 未消费、且与"选模型/用模型"无关
+- 服务商 env/npm/doc：SDK 集成信息，DriFox 未消费
+
+保留（DriFox 消费 + 通用能力标识）：
+- 模型: name/description/family/status/reasoning/reasoning_options/limit/modalities/
+  cost/release_date/last_updated/tool_call/structured_output
+- 服务商: id/name/api/models
 """
 import json
 import sys
 
-DROP_MODEL = {"description"}
+DROP_MODEL = {"id", "provider", "attachment", "experimental", "interleaved",
+              "temperature", "knowledge", "open_weights"}
 DROP_PROVIDER = {"env", "npm", "doc"}
 
 
